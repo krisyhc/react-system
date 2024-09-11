@@ -1,0 +1,29 @@
+.login {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.form {
+  width: 300px;
+  margin-top: 20px;
+}
+.codeRow {
+  display: flex;
+}
+.codeImg {
+  width: 100px;
+  height: 32px;
+  margin-left: 10px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  box-sizing: border-box;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+  }
+}

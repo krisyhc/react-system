@@ -28,6 +28,10 @@ const PaperBank = React.lazy(() => import('../pages/home/paperManage/paperBank/P
 
 const routes = [
   {
+    path: '/login',
+    element:<Login/>,
+  },
+  {
     path: '/',
     element:<Home/>,
     children:[
@@ -84,10 +88,6 @@ const routes = [
         element:<PaperBank/>,
       },
     ]
-  },
-  {
-    path: '/login',
-    element:<Login/>,
   },
   {
     path: '*',

@@ -1,239 +1,89 @@
-import React,{ useEffect, useState } from'react';
+import React, { useEffect, useState } from 'react'
+import { LockOutlined, UserOutlined } from '@ant-design/icons'
+import { Button, Form, Input, message } from 'antd'
+import style from './Login.module.scss'
+import { loginCaptchaApi, loginApi } from '../../Api/login'
+import type { LoginParams } from '../../types/login'
+import { useNavigate } from 'react-router-dom'
 
-import {
-  LockOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import {
-  LoginForm,
-  ProConfigProvider,
-  ProFormCaptcha,
-  ProFormCheckbox,
-  ProFormText,
-} from '@ant-design/pro-components';
-import { Tabs, message, theme } from 'antd';
-import { useNavigate } from'react-router-dom';
+const Login: React.FC = () => {
+  const [imgUrl, setImgUrl] = useState('')
+  const navigate = useNavigate()
 
-type LoginType = 'studen' | 'teacher';
+  const onFinish = async (values: LoginParams) => {
+    try {
+      const res = await loginApi(values)
+      if (res.data.code === 200) {
+        message.success('登录成功')
+        localStorage.setItem('token', res.data.data.token)
+        console.log(res.data.data.token)
 
-const Login: React.Fc = () => {
-  const [imgUrl, setImgUrl] = useState<string>('');
-  const navigate = useNavigate();
-  const { token } = theme.useToken();
-  const [loginType, setLoginType] = useState<LoginType>('studen');
+        navigate('/')
+      } else if (res.data.code === 1005) {
+        message.error(res.data.msg)
+        getCaptcha()
+      } else {
+        message.error(res.data.msg)
+      }
+    } catch(e) {
+      message.error('请求失败')
+    }
+  };
+
+  const getCaptcha = async () => {
+    try {
+      const res = await loginCaptchaApi()
+      if (res.data.code === 200) {
+        setImgUrl(res.data.data.code)
+      } else {
+        message.error(res.data.msg)
+      }
+    } catch(e) {
+      message.error('请求失败，请稍后重试！')
+    }
+  }
+
+  useEffect(() => {
+    getCaptcha()
+  }, [])
 
   return (
-    <ProConfigProvider hashed={false}>
-      <div style={{ backgroundColor: token.colorBgContainer }}>
-        <LoginForm
-          logo="../../../../public/logo.png"
-           subTitle="正曦教育考试系统平台"
+    <div className={style.login}>
+      <h2>登录考试系统</h2>
+      <Form
+        name="login"
+        className={style.form}
+        onFinish={onFinish}
+        autoComplete="off"
+      >
+        <Form.Item
+          name="username"
+          rules={[{ required: true, message: '请输入用户名!' }]}
         >
-          <Tabs
-            centered
-            activeKey={loginType}
-            onChange={(activeKey) => setLoginType(activeKey as LoginType)}
+          <Input prefix={<UserOutlined />} placeholder="用户名" />
+        </Form.Item>
+        <Form.Item
+          name="password"
+          rules={[{ required: true, message: '请输入密码!' }]}
+        >
+          <Input prefix={<LockOutlined />} type="password" placeholder="密码" />
+        </Form.Item>
+        <div className={style.codeRow}>
+          <Form.Item
+            name="code"
+            rules={[{ required: true, message: '请输入验证码!' }]}
           >
-            <Tabs.TabPane key={'studen'} tab={'学生登录'} />
-            <Tabs.TabPane key={'teacher'} tab={'老师登录'} />
-          </Tabs>
-          {loginType === 'studen' && (
-            <>
-              <ProFormText
-                name="username"
-                fieldProps={{
-                  size: 'large',
-                  prefix: <UserOutlined className={'prefixIcon'} />,
-                }}
-                placeholder={'用户名: admin or user'}
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入学号!',
-                  },
-                ]}
-              />
-              <ProFormText.Password
-                name="password"
-                fieldProps={{
-                  size: 'large',
-                  prefix: <LockOutlined className={'prefixIcon'} />,
-                  strengthText:
-                    '密码由数字、字母和特殊字符组成,长度至少为8个字符.',
-                  statusRender: (value) => {
-                    const getStatus = () => {
-                      if (value && value.length > 12) {
-                        return 'ok';
-                      }
-                      if (value && value.length > 6) {
-                        return 'pass';
-                      }
-                      return 'poor';
-                    };
-                    const status = getStatus();
-                    if (status === 'pass') {
-                      return (
-                        <div style={{ color: token.colorWarning }}>
-                          强度：中
-                        </div>
-                      );
-                    }
-                    if (status === 'ok') {
-                      return (
-                        <div style={{ color: token.colorSuccess }}>
-                          强度：强
-                        </div>
-                      );
-                    }
-                    return (
-                      <div style={{ color: token.colorError }}>强度：弱</div>
-                    );
-                  },
-                }}
-                placeholder={'密码: ant.design'}
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入密码！',
-                  },
-                ]}
-              />
-               <ProFormCaptcha
-                fieldProps={{
-                  size: 'large',
-                  prefix: <LockOutlined className={'prefixIcon'} />,
-                }}
-                captchaProps={{
-                  size: 'large',
-                }}
-                placeholder={'请输入验证码'}
-                captchaTextRender={(timing, count) => {
-                  if (timing) {
-                    return `${count} ${'获取验证码'}`;
-                  }
-                  return '11';
-                }}
-                name="captcha"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入验证码！',
-                  },
-                ]}
-                onGetCaptcha={async () => {
-                  message.success('获取验证码成功！验证码为：1234');
-                }}
-              />
-            </>
-          )}
-         {loginType === 'teacher' && (
-            <>
-              <ProFormText
-                name="username"
-                fieldProps={{
-                  size: 'large',
-                  prefix: <UserOutlined className={'prefixIcon'} />,
-                }}
-                placeholder={'用户名: admin or user'}
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入教职工工号!',
-                  },
-                ]}
-              />
-              <ProFormText.Password
-                name="password"
-                fieldProps={{
-                  size: 'large',
-                  prefix: <LockOutlined className={'prefixIcon'} />,
-                  strengthText:
-                    '密码由数字、字母和特殊字符组成,长度至少为8个字符.',
-                  statusRender: (value) => {
-                    const getStatus = () => {
-                      if (value && value.length > 12) {
-                        return 'ok';
-                      }
-                      if (value && value.length > 6) {
-                        return 'pass';
-                      }
-                      return 'poor';
-                    };
-                    const status = getStatus();
-                    if (status === 'pass') {
-                      return (
-                        <div style={{ color: token.colorWarning }}>
-                          强度：中
-                        </div>
-                      );
-                    }
-                    if (status === 'ok') {
-                      return (
-                        <div style={{ color: token.colorSuccess }}>
-                          强度：强
-                        </div>
-                      );
-                    }
-                    return (
-                      <div style={{ color: token.colorError }}>强度：弱</div>
-                    );
-                  },
-                }}
-                placeholder={'密码: ant.design'}
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入密码！',
-                  },
-                ]}
-              />
-               <ProFormCaptcha
-                fieldProps={{
-                  size: 'large',
-                  prefix: <LockOutlined className={'prefixIcon'} />,
-                }}
-                captchaProps={{
-                  size: 'large',
-                }}
-                placeholder={'请输入验证码'}
-                captchaTextRender={(timing, count) => {
-                  if (timing) {
-                    return `${count} ${'获取验证码'}`;
-                  }
-                  return '11';
-                }}
-                name="captcha"
-                rules={[
-                  {
-                    required: true,
-                    message: '请输入验证码！',
-                  },
-                ]}
-                onGetCaptcha={async () => {
-                  message.success('获取验证码成功！验证码为：1234');
-                }}
-              />
-            </>
-          )}
-          <div
-            style={{
-              marginBlockEnd: 24,
-            }}
-          >
-            <ProFormCheckbox noStyle name="autoLogin">
-              自动登录
-            </ProFormCheckbox>
-            <a
-              style={{
-                float: 'right',
-              }}
-            >
-              忘记密码
-            </a>
+            <Input prefix={<LockOutlined />} placeholder="验证码" />
+          </Form.Item>
+          <div className={style.codeImg} onClick={getCaptcha}>
+            <img src={imgUrl} alt="" />
           </div>
-        </LoginForm>
-      </div>
-    </ProConfigProvider>
+        </div>
+        <Form.Item>
+          <Button block type="primary" htmlType="submit">登录</Button>
+        </Form.Item>
+      </Form>
+    </div>
   );
 };
 
