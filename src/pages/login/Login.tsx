@@ -1,10 +1,8 @@
+import React,{ useEffect, useState } from'react';
+
 import {
-  AlipayCircleOutlined,
   LockOutlined,
-  MobileOutlined,
-  TaobaoCircleOutlined,
   UserOutlined,
-  WeiboCircleOutlined,
 } from '@ant-design/icons';
 import {
   LoginForm,
@@ -12,25 +10,17 @@ import {
   ProFormCaptcha,
   ProFormCheckbox,
   ProFormText,
-  setAlpha,
 } from '@ant-design/pro-components';
-import { Space, Tabs, message, theme } from 'antd';
-import type { CSSProperties } from 'react';
-import { useState } from 'react';
+import { Tabs, message, theme } from 'antd';
+import { useNavigate } from'react-router-dom';
 
-type LoginType = 'phone' | 'account';
+type LoginType = 'studen' | 'teacher';
 
-export default () => {
+const Login: React.Fc = () => {
+  const [imgUrl, setImgUrl] = useState<string>('');
+  const navigate = useNavigate();
   const { token } = theme.useToken();
-  const [loginType, setLoginType] = useState<LoginType>('phone');
-
-  const iconStyles: CSSProperties = {
-    marginInlineStart: '16px',
-    color: setAlpha(token.colorTextBase, 0.2),
-    fontSize: '24px',
-    verticalAlign: 'middle',
-    cursor: 'pointer',
-  };
+  const [loginType, setLoginType] = useState<LoginType>('studen');
 
   return (
     <ProConfigProvider hashed={false}>
@@ -44,10 +34,10 @@ export default () => {
             activeKey={loginType}
             onChange={(activeKey) => setLoginType(activeKey as LoginType)}
           >
-            <Tabs.TabPane key={'account'} tab={'账号密码登录'} />
-            <Tabs.TabPane key={'phone'} tab={'手机号登录'} />
+            <Tabs.TabPane key={'studen'} tab={'学生登录'} />
+            <Tabs.TabPane key={'teacher'} tab={'老师登录'} />
           </Tabs>
-          {loginType === 'account' && (
+          {loginType === 'studen' && (
             <>
               <ProFormText
                 name="username"
@@ -59,7 +49,7 @@ export default () => {
                 rules={[
                   {
                     required: true,
-                    message: '请输入用户名!',
+                    message: '请输入学号!',
                   },
                 ]}
               />
@@ -136,27 +126,68 @@ export default () => {
               />
             </>
           )}
-          {loginType === 'phone' && (
+         {loginType === 'teacher' && (
             <>
               <ProFormText
+                name="username"
                 fieldProps={{
                   size: 'large',
-                  prefix: <MobileOutlined className={'prefixIcon'} />,
+                  prefix: <UserOutlined className={'prefixIcon'} />,
                 }}
-                name="mobile"
-                placeholder={'手机号'}
+                placeholder={'用户名: admin or user'}
                 rules={[
                   {
                     required: true,
-                    message: '请输入手机号！',
-                  },
-                  {
-                    pattern: /^1\d{10}$/,
-                    message: '手机号格式错误！',
+                    message: '请输入教职工工号!',
                   },
                 ]}
               />
-              <ProFormCaptcha
+              <ProFormText.Password
+                name="password"
+                fieldProps={{
+                  size: 'large',
+                  prefix: <LockOutlined className={'prefixIcon'} />,
+                  strengthText:
+                    '密码由数字、字母和特殊字符组成,长度至少为8个字符.',
+                  statusRender: (value) => {
+                    const getStatus = () => {
+                      if (value && value.length > 12) {
+                        return 'ok';
+                      }
+                      if (value && value.length > 6) {
+                        return 'pass';
+                      }
+                      return 'poor';
+                    };
+                    const status = getStatus();
+                    if (status === 'pass') {
+                      return (
+                        <div style={{ color: token.colorWarning }}>
+                          强度：中
+                        </div>
+                      );
+                    }
+                    if (status === 'ok') {
+                      return (
+                        <div style={{ color: token.colorSuccess }}>
+                          强度：强
+                        </div>
+                      );
+                    }
+                    return (
+                      <div style={{ color: token.colorError }}>强度：弱</div>
+                    );
+                  },
+                }}
+                placeholder={'密码: ant.design'}
+                rules={[
+                  {
+                    required: true,
+                    message: '请输入密码！',
+                  },
+                ]}
+              />
+               <ProFormCaptcha
                 fieldProps={{
                   size: 'large',
                   prefix: <LockOutlined className={'prefixIcon'} />,
@@ -169,7 +200,7 @@ export default () => {
                   if (timing) {
                     return `${count} ${'获取验证码'}`;
                   }
-                  return '获取验证码';
+                  return '11';
                 }}
                 name="captcha"
                 rules={[
@@ -205,3 +236,5 @@ export default () => {
     </ProConfigProvider>
   );
 };
+
+export default Login;

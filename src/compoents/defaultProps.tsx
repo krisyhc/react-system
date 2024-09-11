@@ -14,12 +14,10 @@ import {
         path: '/admin',
         name: '考试管理',
         icon: <FormOutlined />,
-        access: 'canAdmin',
         routes: [
           {
             path: '/admin/examRecord',
             name: '考试记录',
-            component: './Welcome',
           },
           {
             path: '/admin/createExam',
@@ -30,16 +28,15 @@ import {
       {
         name: '班级管理',
         icon: <TeamOutlined />,
-        path: '/list',
-        component: './ListTableList',
+        path: '/class',
         routes: [
           {
-            path: '/list/sub-page2',
-            name: '二级列表页面',
+            path: '/class/classList',
+            name: '班级列表',
           },
           {
-            path: '/list/sub-page3',
-            name: '三级列表页面',
+            path: '/class/studentList',
+            name: '学生列表',
           },
         ],
       },
@@ -47,47 +44,56 @@ import {
         name: '系统管理',
         icon: <CrownOutlined />,
         path: '/system',
-        component: './ListTableList',
         routes: [
           {
-            path: '/system/sub-page2',
-            name: '二级列表页面',
+            path: '/system/limitsManger',
+            name: '权限管理',
           },
           {
-            path: '/system/sub-page3',
-            name: '三级列表页面',
+            path: '/system/personal',
+            name: '个人信息',
           },
+          {
+            path: '/system/roleManger',
+            name: '角色管理',
+          },
+          {
+            path: '/system/user',
+            name: '用户',
+          },
+          {
+            path: '/system/userManger',
+            name: '用户管理',
+          }
         ],
       },
       {
         name: '试题管理',
         icon:<EditOutlined />,
-        path: '/system1',
-        component: './ListTableList',
+        path: '/topic',
         routes: [
           {
-            path: '/system1/sub-page2',
-            name: '二级列表页面',
+            path: '/topic/additem',
+            name: '添加试题',
           },
           {
-            path: '/system1/sub-page3',
-            name: '三级列表页面',
+            path: '/topic/itemBank',
+            name: '试题库',
           },
         ],
       },
       {
         name: '试卷管理',
         icon: <FileUnknownOutlined />,
-        path: '/system2',
-        component: './ListTableList',
+        path: '/paper',
         routes: [
           {
-            path: '/system2/sub-page2',
-            name: '二级列表页面',
+            path: '/paper/addpaper',
+            name: '创建试卷',
           },
           {
-            path: '/system2/sub-page3',
-            name: '三级列表页面',
+            path: '/paper/paperBank',
+            name: '试卷库',
           },
         ],
       },

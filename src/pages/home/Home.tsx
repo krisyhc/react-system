@@ -58,10 +58,17 @@ export default () => {
           );
         }}
         onMenuHeaderClick={(e) => console.log(e)}
-        menuItemRender={(item, dom) => (
+        menuItemRender={(item, dom,props) => (
           <a
             onClick={() => {
-              setPathname(item.path || '/welcome');
+             const cur = props.route?.routes.find(v => v.path === item.path);
+             if (cur?.routes) {
+              navigate(cur?.routes[0].path);
+             }else{
+              navigate(item.path);
+             }
+
+
             }}
           >
             {dom}
@@ -71,14 +78,14 @@ export default () => {
         <PageContainer>
           <ProCard
             style={{
-              height: '120vh',
+              height:'100Vh',
               minHeight: 600,
             }}
           >
-            {<Suspense fallback={<div>Loading...</div>} >
+            <Suspense fallback={<div>数据加载中Loading...</div>} >
               <Outlet />
             </Suspense>
-              &&
+              {/* &&
              <Result
               status="404"
               style={{
@@ -91,7 +98,7 @@ export default () => {
                   <Button type="primary">返回首页</Button>
                </NavLink>
             }
-            /> }
+            />  */}
           </ProCard>
         </PageContainer>
       </ProLayout>
